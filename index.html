@@ -65,10 +65,11 @@
 
             <label>敵のピックキャラ:</label>
             <input type="text" placeholder="例: モーティス、コルト">
-
-            <button onclick="alert('AIピック機能を準備中！将来ここに最強のカウンターキャラが表示されます。')">AIピックを作動させる</button>
-        </div>
-
+<button onclick="askAI()">AIピックを作動させる</button>
+<div id="aiResponse" style="background: #252b4e; padding: 15px; margin-top: 15px; border-radius: 4px; display: none;">
+    <b style="color: #febb11;">🤖 AIコーチの提案:</b>
+    <p id="aiText">計算中...</p>
+</div>
         <!-- 3. 色んな人が書き込める攻略掲示板（見た目） -->
         <div class="box">
             <h2>💬 みんなの攻略雑談掲示板</h2>
