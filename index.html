@@ -52,11 +52,11 @@
             </div>
         </div>
 
-        <!-- 2. AIピック・ドラフトエリア（見た目） -->
+        <!-- 2. AIピック・ドラフトエリア（本物仕様） -->
         <div class="box">
             <h2>🧠 AIピックシミュレーター</h2>
             <label>ゲームモードを選択:</label>
-            <select>
+            <select id="modeSelect">
                 <option>ガチバトル（エメラルドハント）</option>
                 <option>ガチバトル（ホットゾーン）</option>
                 <option>ガチバトル（強奪）</option>
@@ -64,13 +64,18 @@
             </select>
 
             <label>敵のピックキャラ:</label>
-            <input type="text" placeholder="例: モーティス、コルト">
-<button onclick="askAI()">AIピックを作動させる</button>
-<div id="aiResponse" style="background: #252b4e; padding: 15px; margin-top: 15px; border-radius: 4px; display: none;">
-    <b style="color: #febb11;">🤖 AIコーチの提案:</b>
-    <p id="aiText">計算中...</p>
-</div>
-        <!-- 3. 色んな人が書き込める攻略掲示板（見た目） -->
+            <input type="text" id="enemyInput" placeholder="例: モーティス、コルト">
+
+            <button onclick="askAI()">AIピックを作動させる</button>
+
+            <!-- AIの回答が表示される隠しエリア -->
+            <div id="aiResponse" style="background: #252b4e; padding: 15px; margin-top: 15px; border-radius: 4px; display: none; border: 1px solid #febb11;">
+                <b style="color: #febb11; display: block; margin-bottom: 8px;">🤖 AIコーチの提案:</b>
+                <p id="aiText" style="margin: 0; font-size: 14px; line-height: 1.6;"></p>
+            </div>
+        </div>
+
+        <!-- 3. 色んな人が書き込める攻略掲示板 -->
         <div class="box">
             <h2>💬 みんなの攻略雑談掲示板</h2>
             <input type="text" id="nameInput" placeholder="名前（匿名可）">
@@ -88,8 +93,9 @@
 
     </div>
 
-    <!-- 掲示板に文字が追加される簡易的なJavaScriptプログラム（おまけ） -->
+    <!-- ここから裏側のプログラム -->
     <script>
+        // 掲示板の書き込みプログラム
         function addPost() {
             var name = document.getElementById('nameInput').value || 'アノニマス';
             var text = document.getElementById('textInput').value;
@@ -103,19 +109,44 @@
             postList.insertBefore(newPost, postList.firstChild);
             document.getElementById('textInput').value = '';
         }
+
+        // 本物のAIピック（Gemini API連動）プログラム
+        async function askAI() {
+            var mode = document.getElementById('modeSelect').value;
+            var enemy = document.getElementById('enemyInput').value;
+            if(!enemy) { alert('敵のキャラを入力してください！'); return; }
+
+            var responseBox = document.getElementById('aiResponse');
+            var aiText = document.getElementById('aiText');
+            
+            responseBox.style.display = 'block';
+            aiText.innerHTML = '<span style="color: #aaa; animation: blink 1s infinite;">ブロスタ環境データを分析中...</span>';
+
+            // あなたの専用APIキーをあらかじめセットしてあります
+            var apiKey = "AQ.Ab8RN6JeoDEMEYZ5CZUFugxHBBaUkdukzswqHUZTR02cOlr_eQ"; 
+            var url = "https://googleapis.com" + apiKey;
+
+            var promptText = "あなたはブロスタのプロコーチです。「" + mode + "」で、敵の編成が「" + enemy + "」の場合の、最強のカウンターピック（対策キャラクター）を3人、それぞれの採用理由と合わせて、日本のブロスタプレイヤー向けに分かりやすく、箇条書きを使って300文字以内で短く教えてください。";
+
+            try {
+                var response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptText }] }]
+                    })
+                });
+                var data = await response.json();
+                var resultText = data.candidates[0].content.parts[0].text;
+                
+                // AIの返答の改行を画面に反映させる
+                aiText.innerHTML = resultText.replace(/\n/g, '<br>');
+            } catch (error) {
+                aiText.innerText = "エラーが発生しました。時間を置いてもう一度試すか、入力形式を確認してください。";
+                console.error(error);
+            }
+        }
     </script>
-async function askAI() {
-    var mode = document.querySelector('select').value;
-    var enemy = document.querySelector('input[type="text"]').value;
-    if(!enemy) { alert('敵のキャラを入力してください！'); return; }
 
-    var responseBox = document.getElementById('aiResponse');
-    var aiText = document.getElementById('aiText');
-    
-    responseBox.style.display = 'block';
-    aiText.innerText = 'データを分析中...';
-
-    // ここで無料のAIの脳みそ（API）に「モード」「敵キャラ」を送信して、
-    // ガチバトルの勝率データをもとにしたカウンターピックを計算させます
-    // ※安全に繋ぐための鍵（APIキー）の設定を次に行います
-}
+</body>
+</html>
