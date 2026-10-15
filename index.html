@@ -104,7 +104,18 @@
             document.getElementById('textInput').value = '';
         }
     </script>
+async function askAI() {
+    var mode = document.querySelector('select').value;
+    var enemy = document.querySelector('input[type="text"]').value;
+    if(!enemy) { alert('敵のキャラを入力してください！'); return; }
 
-</body>
-</html>
+    var responseBox = document.getElementById('aiResponse');
+    var aiText = document.getElementById('aiText');
+    
+    responseBox.style.display = 'block';
+    aiText.innerText = 'データを分析中...';
 
+    // ここで無料のAIの脳みそ（API）に「モード」「敵キャラ」を送信して、
+    // ガチバトルの勝率データをもとにしたカウンターピックを計算させます
+    // ※安全に繋ぐための鍵（APIキー）の設定を次に行います
+}
